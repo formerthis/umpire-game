@@ -10,13 +10,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Umpire">
 <meta name="theme-color" content="#0a0f1f">
-<!-- Umpire game mockup v9. Built 2026-10-29 from mockup v8: new batters in both leagues (stance, load, check swing, look back at the ump),
+<!-- Umpire game mockup v10. Built 2026-10-29 from mockup v9: the batter loads while the ball is in the air (highest about halfway),
+     not during the windup, and his check swing starts after his front foot is down.
+     v9 notes: built 2026-10-29 from mockup v8: new batters in both leagues (stance, load, check swing, look back at the ump),
      new catcher frames in both leagues (mitt always on his glove hand, straight-on crouch and throw that work on both sides of the plate),
      strike zones re-measured on the new stances, the half inning ends before the next batter walks up, no LEFTY UP banner.
      v8 notes: built 2026-10-28 from mockup v7: title screen (league, innings, show zone), pause menu (resume, restart, quit),
      win and lose with marks and end screens, manager visits with LISTEN / EJECT, runners and runs, half-inning line score, lefty hitters and pitchers.
      Also a full HTML document with a viewport tag so it fits the iPhone when served from GitHub Pages.
-     v1 to v8 stay unchanged; new versions go in -v10, -v11, etc. -->
+     v1 to v9 stay unchanged; new versions go in -v11, -v12, etc. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -761,8 +763,10 @@ function glove(){const o=pOrigin(),r=meta().pitch.glove;return[pmx(o[0]+r[0]),o[
 /* ---- batter ---- */
 const hasBat=k=>!!SPR[sp().k+'b_'+k];
 function stanceFrame(){   // v9: what the hitter does while he's set at the plate
-  if(S.m==='wind'&&S.t>=10&&S.t<26&&hasBat('load'))return 'load';                      // small load during the windup, back down before the release
-  if(S.m==='fly'&&S.chk&&hasBat('check')){const fr=S.t/S.p.f;if(fr>=0.55&&fr<0.9)return 'check';}   // starts to swing and holds up
+  if(S.m==='fly'){const fr=S.t/S.p.f;                                                    // v10: timed to the ball, not the windup
+    if(fr>=0.25&&fr<0.6&&hasBat('load'))return 'load';                                   // lifts while the ball is in the air, highest about halfway
+    if(S.chk&&fr>=0.7&&hasBat('check'))return 'check';}                                  // foot down, starts to swing and holds up
+  if(S.m==='call'&&S.chk&&S.t<12&&hasBat('check'))return 'check';                       // holds the check swing through the catch
   if(S.m==='after'&&S.look&&S.t>=6&&S.t<54&&hasBat('look'))return 'look';            // glances back at the ump after a strike call
   return 'stance';
 }
